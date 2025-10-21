@@ -2,63 +2,83 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
+// Main screen component for managing a simple menu list
 export default function HomeScreen() {
+  // Selected category for adding/listing items (Starter, Main, Desert)
   const [category, setCategory] = useState('Starter');
+
+  // Controlled inputs for the new menu item
   const [dishName, setDishName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+
+  // Array of menu items stored in component state
   const [menuItems, setMenuItems] = useState<any[]>([]);
+
+  // Error message to display validation feedback to the user
   const [error, setError] = useState('');
 
+  // Add a new item to the menuItems list after validation
   const addItem = () => {
-  if (!dishName || !description || !price) {
-    setError('Please fill in all fields before adding an item.');
-    return;
-  }
+    // Basic validation: require all fields
+    if (!dishName || !description || !price) {
+      setError('Please fill in all fields before adding an item.');
+      return;
+    }
 
-  const newItem = {
-    id: Date.now().toString(),
-    category,
-    dishName,
-    description,
-    price: parseFloat(price).toFixed(2),
+    // Construct a new item object
+    const newItem = {
+      id: Date.now().toString(), // simple unique id based on timestamp
+      category,
+      dishName,
+      description,
+      price: parseFloat(price).toFixed(2), // store price as formatted string
+    };
+
+    // Append the new item to the list and reset input fields
+    setMenuItems([...menuItems, newItem]);
+    setDishName('');
+    setDescription('');
+    setPrice('');
+    setError(''); // clear error once successfully added
   };
 
-  setMenuItems([...menuItems, newItem]);
-  setDishName('');
-  setDescription('');
-  setPrice('');
-  setError(''); // clear error once successfully added
-  };
-
+  // Remove an item by id
   const removeItem = (id: string) => {
     setMenuItems(menuItems.filter(item => item.id !== id));
   };
 
+  // Filter items to show only those matching the currently selected category
   const filteredItems = menuItems.filter(item => item.category === category);
 
   return (
     <View style={styles.container}>
-      {/* Input Section */}
+      {/* Input Section: add new menu items */}
       <View style={styles.inputSection}>
+        {/* Category picker for the input form */}
         <Picker selectedValue={category} onValueChange={setCategory} style={styles.picker}>
           <Picker.Item label="Starter" value="Starter" />
           <Picker.Item label="Main" value="Main" />
           <Picker.Item label="Desert" value="Desert" />
         </Picker>
 
+        {/* Dish name input */}
         <TextInput
           style={styles.input}
           placeholder="Dish Name"
           value={dishName}
           onChangeText={setDishName}
         />
+
+        {/* Description input */}
         <TextInput
           style={styles.input}
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
         />
+
+        {/* Price input with basic formatting/validation logic */}
         <TextInput
           style={styles.input}
           placeholder="Price"
@@ -69,31 +89,35 @@ export default function HomeScreen() {
             const parts = formatted.split(".");
             if (parts.length > 2) formatted = parts[0] + "." + parts[1]; // prevent more than one dot
 
-              // Limit to 2 decimal places
-              if (parts[1]?.length > 2) {
-                formatted = parts[0] + "." + parts[1].slice(0, 2);
-              }
+            // Limit to 2 decimal places
+            if (parts[1]?.length > 2) {
+              formatted = parts[0] + "." + parts[1].slice(0, 2);
+            }
 
             setPrice(formatted);
           }}
           keyboardType="decimal-pad"
         />
 
+        {/* Add button to submit the new menu item */}
         <TouchableOpacity style={styles.addButton} onPress={addItem}>
           <Text style={styles.addText}>ADD</Text>
         </TouchableOpacity>
 
+        {/* Display validation error if present */}
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-     </View>
+      </View>
 
-      {/* List Section */}
+      {/* List Section: display items for the selected category */}
       <View style={styles.listSection}>
+        {/* Category picker for filtering the list */}
         <Picker selectedValue={category} onValueChange={setCategory} style={styles.picker}>
           <Picker.Item label="Starter" value="Starter" />
           <Picker.Item label="Main" value="Main" />
           <Picker.Item label="Desert" value="Desert" />
         </Picker>
 
+        {/* FlatList rendering filtered menu items */}
         <FlatList
           data={filteredItems}
           keyExtractor={(item) => item.id}
@@ -103,7 +127,10 @@ export default function HomeScreen() {
                 <Text style={styles.dishTitle}>{item.dishName}</Text>
                 <Text style={styles.dishDesc}>{item.description}</Text>
               </View>
+
+              {/* Right side of the card: price and remove button */}
               <View style={styles.rightSide}>
+                {/* Ensure price is displayed with two decimals */}
                 <Text style={styles.price}>R{parseFloat(item.price).toFixed(2)}</Text>
                 <TouchableOpacity style={styles.removeButton} onPress={() => removeItem(item.id)}>
                   <Text style={styles.removeText}>REMOVE</Text>
@@ -117,6 +144,7 @@ export default function HomeScreen() {
   );
 }
 
+/* Styles for the component */
 const styles = StyleSheet.create({
   container: {
     flex: 1,

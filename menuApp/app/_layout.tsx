@@ -6,6 +6,8 @@ export default function RootLayout() {
       <Stack.Screen
         name="index"
         options={{
+          // Header title shown at the top of the screen.
+          // Change this value to update the header text (currently "Menu").
           title: "Menu",
           headerTitleAlign: "center",
         }}
