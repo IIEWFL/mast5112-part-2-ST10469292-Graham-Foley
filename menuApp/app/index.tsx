@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
@@ -17,6 +17,16 @@ export default function HomeScreen() {
 
   // Error message to display validation feedback to the user
   const [error, setError] = useState('');
+
+  // Clear input fields when category changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDishName('');
+      setDescription('');
+      setPrice('');
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [category]);
 
   // Add a new item to the menuItems list after validation
   const addItem = () => {
