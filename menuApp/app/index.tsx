@@ -45,8 +45,8 @@ export default function HomeScreen() {
 
   // Remove an item by id
   const removeItem = (id: string) => {
-    setMenuItems(menuItems.filter(item => item.id !== id));
-  };
+  setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
+};
 
   // Filter items to show only those matching the currently selected category
   const filteredItems = menuItems.filter(item => item.category === category);
@@ -121,23 +121,25 @@ export default function HomeScreen() {
         <FlatList
           data={filteredItems}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View>
-                <Text style={styles.dishTitle}>{item.dishName}</Text>
-                <Text style={styles.dishDesc}>{item.description}</Text>
-              </View>
+          extraData={menuItems}
+          renderItem={({ item }) => {
+            if (!item) return null; // safety check
+            return (
+              <View style={styles.card}>
+                <View>
+                  <Text style={styles.dishTitle}>{item.dishName}</Text>
+                  <Text style={styles.dishDesc}>{item.description}</Text>
+                </View>
 
-              {/* Right side of the card: price and remove button */}
-              <View style={styles.rightSide}>
-                {/* Ensure price is displayed with two decimals */}
-                <Text style={styles.price}>R{parseFloat(item.price).toFixed(2)}</Text>
-                <TouchableOpacity style={styles.removeButton} onPress={() => removeItem(item.id)}>
-                  <Text style={styles.removeText}>REMOVE</Text>
-                </TouchableOpacity>
+                <View style={styles.rightSide}>
+                  <Text style={styles.price}>R{parseFloat(item.price).toFixed(2)}</Text>
+                  <TouchableOpacity style={styles.removeButton} onPress={() => removeItem(item.id)}>
+                    <Text style={styles.removeText}>REMOVE</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
+            );
+          }}
         />
       </View>
     </View>
