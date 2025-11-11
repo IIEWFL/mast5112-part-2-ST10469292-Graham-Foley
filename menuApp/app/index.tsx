@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 
@@ -45,6 +45,18 @@ export default function HomeScreen() {
     });
   };
 
+  const confirmRemove = (id: string, name?: string) => {
+    Alert.alert(
+      'Remove item',
+      `Remove "${name ?? 'this item'}" from the menu?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => removeItem(id) },
+      ],
+      { cancelable: true }
+    );
+  };
+
   // Filter items to show only those matching the currently selected category
   const filteredItems = menuItems.filter(item => item.category === category);
 
@@ -80,7 +92,7 @@ export default function HomeScreen() {
 
                 <View style={styles.rightSide}>
                   <Text style={styles.price}>R{parseFloat(item.price).toFixed(2)}</Text>
-                  <TouchableOpacity style={styles.removeButton} onPress={() => removeItem(item.id)}>
+                  <TouchableOpacity style={styles.removeButton} onPress={() => confirmRemove(item.id, item.dishName)}>
                     <Text style={styles.removeText}>REMOVE</Text>
                   </TouchableOpacity>
                 </View>
@@ -190,15 +202,21 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   navButton: {
-    backgroundColor: '#4A90E2',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    backgroundColor: '#A67C52',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
     alignSelf: 'flex-end',
     margin: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   navText: {
     color: 'white',
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
 });
