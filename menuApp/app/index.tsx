@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'expo-router';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 // Main screen component for managing a simple menu list
 export default function HomeScreen() {
+  const router = useRouter();
   // Selected category for adding/listing items (Starter, Main, Desert)
   const [category, setCategory] = useState('Starter');
 
@@ -63,6 +65,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Navigation: go to Add Menu screen */}
+      <TouchableOpacity style={styles.navButton} onPress={() => router.push('/addMenu')}>
+        <Text style={styles.navText}>Go to Add Menu</Text>
+      </TouchableOpacity>
       {/* Input Section: add new menu items */}
       <View style={styles.inputSection}>
         {/* Category picker for the input form */}
@@ -251,5 +257,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  navButton: {
+    backgroundColor: '#4A90E2',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: 'flex-end',
+    margin: 12,
+  },
+  navText: {
+    color: 'white',
+    fontWeight: '600',
   },
 });
