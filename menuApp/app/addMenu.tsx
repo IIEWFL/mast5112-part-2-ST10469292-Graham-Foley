@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 
 // Chef-focused Add Menu screen
@@ -16,6 +17,7 @@ export default function AddMenuScreen() {
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
 
+	// clear inputs when category changes
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setDishName('');
@@ -24,6 +26,28 @@ export default function AddMenuScreen() {
 		}, 100);
 		return () => clearTimeout(timer);
 	}, [category]);
+
+	const STORAGE_KEY = '@menu_items';
+
+	// load persisted items on mount
+	useEffect(() => {
+		(async function load() {
+			try {
+				const raw = await AsyncStorage.getItem(STORAGE_KEY);
+				if (raw) setMenuItems(JSON.parse(raw));
+			} catch (e) {
+				console.warn('Failed to load menu items', e);
+			}
+		})();
+	}, []);
+
+	const saveItems = async (items: any[]) => {
+		try {
+			await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+		} catch (e) {
+			console.warn('Failed to save menu items', e);
+		}
+	};
 
 	const addItem = () => {
 		if (!dishName.trim() || !description.trim() || !price.trim()) {
@@ -47,7 +71,11 @@ export default function AddMenuScreen() {
 			price: parsed.toFixed(2),
 		};
 
-		setMenuItems(prev => [...prev, newItem]);
+		setMenuItems(prev => {
+			const next = [...prev, newItem];
+			saveItems(next);
+			return next;
+		});
 		setDishName('');
 		setDescription('');
 		setPrice('');
@@ -59,7 +87,11 @@ export default function AddMenuScreen() {
 	};
 
 	const removeItem = (id: string) => {
-		setMenuItems(prev => prev.filter(item => item.id !== id));
+		setMenuItems(prev => {
+			const next = prev.filter(item => item.id !== id);
+			saveItems(next);
+			return next;
+		});
 	};
 
 	const filteredItems = menuItems.filter(item => item.category === category);
