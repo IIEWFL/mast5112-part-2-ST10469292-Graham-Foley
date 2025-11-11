@@ -15,7 +15,6 @@ export default function RootLayout() {
       <Stack.Screen
         name="addMenu"
         options={{
-          // Use the native header/title for the add screen (restored to previous behavior)
           title: 'Add to Menu',
           headerTitleAlign: 'center',
         }}

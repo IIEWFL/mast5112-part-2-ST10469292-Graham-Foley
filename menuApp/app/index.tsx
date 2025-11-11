@@ -7,44 +7,52 @@ import { Picker } from '@react-native-picker/picker';
 // Main screen component for managing a simple menu list
 export default function HomeScreen() {
   const router = useRouter();
+
   // Selected category for adding/listing items (Starter, Main, Desert)
   const [category, setCategory] = useState('Starter');
 
   // Shared menu items (persisted)
   const [menuItems, setMenuItems] = useState<any[]>([]);
 
+  // AsyncStorage key for persisting menu items
   const STORAGE_KEY = '@menu_items';
 
+  // Load persisted items from AsyncStorage on mount
   const loadItems = async () => {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
       if (raw) setMenuItems(JSON.parse(raw));
     } catch (e) {
+      // Log a warning if load fails
       console.warn('Failed to load menu items', e);
     }
   };
 
+  // Persist given items array to AsyncStorage
   const saveItems = async (items: any[]) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch (e) {
+      // Log a warning if save fails
       console.warn('Failed to save menu items', e);
     }
   };
 
+  // Load items once when component mounts
   useEffect(() => {
     loadItems();
   }, []);
 
-  // Remove an item by id and persist
+  // Remove an item by id, update state and persist the change
   const removeItem = (id: string) => {
     setMenuItems(prev => {
       const next = prev.filter(item => item.id !== id);
-      saveItems(next);
+      saveItems(next); // persist the new list
       return next;
     });
   };
 
+  // Confirm before removing an item (shows native alert)
   const confirmRemove = (id: string, name?: string) => {
     Alert.alert(
       'Remove item',
@@ -60,23 +68,25 @@ export default function HomeScreen() {
   // Filter items to show only those matching the currently selected category
   const filteredItems = menuItems.filter(item => item.category === category);
 
-  // Compute average prices per category
+  // Compute average prices per category and return formatted strings
   const computeAverages = () => {
     const categories = ['Starter', 'Main', 'Desert'];
     const result: Record<string, string> = {};
     for (const cat of categories) {
       const items = menuItems.filter(i => i.category === cat);
       if (items.length === 0) {
-        result[cat] = '—';
+        result[cat] = '—'; // dash for empty categories
         continue;
       }
+      // Sum prices (coerce to number safely) and compute average
       const sum = items.reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
       const avg = sum / items.length;
-      result[cat] = `R${avg.toFixed(2)}`;
+      result[cat] = `R${avg.toFixed(2)}`; // format with currency and two decimals
     }
     return result;
   };
 
+  // Averages memo computed on every render from current menuItems
   const averages = computeAverages();
 
   return (
@@ -88,7 +98,6 @@ export default function HomeScreen() {
 
       {/* List Section: display items for the selected category */}
       <View style={styles.listSection}>
-      
         {/* Category picker for filtering the list */}
         <Picker selectedValue={category} onValueChange={setCategory} style={styles.picker}>
           <Picker.Item label="Starter" value="Starter" />
@@ -106,10 +115,12 @@ export default function HomeScreen() {
             return (
               <View style={styles.card}>
                 <View>
+                  {/* Dish title and description */}
                   <Text style={styles.dishTitle}>{item.dishName}</Text>
                   <Text style={styles.dishDesc}>{item.description}</Text>
                 </View>
 
+                {/* Right side: price and remove action */}
                 <View style={styles.rightSide}>
                   <Text style={styles.price}>R{parseFloat(item.price).toFixed(2)}</Text>
                   <TouchableOpacity style={styles.removeButton} onPress={() => confirmRemove(item.id, item.dishName)}>
@@ -120,6 +131,7 @@ export default function HomeScreen() {
             );
           }}
         />
+
         {/* Averages summary per course (moved to the bottom) */}
         <View style={styles.statsContainer}>
           <View style={styles.statBox}>
