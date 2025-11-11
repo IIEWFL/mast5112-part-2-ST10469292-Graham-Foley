@@ -60,6 +60,25 @@ export default function HomeScreen() {
   // Filter items to show only those matching the currently selected category
   const filteredItems = menuItems.filter(item => item.category === category);
 
+  // Compute average prices per category
+  const computeAverages = () => {
+    const categories = ['Starter', 'Main', 'Desert'];
+    const result: Record<string, string> = {};
+    for (const cat of categories) {
+      const items = menuItems.filter(i => i.category === cat);
+      if (items.length === 0) {
+        result[cat] = '—';
+        continue;
+      }
+      const sum = items.reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+      const avg = sum / items.length;
+      result[cat] = `R${avg.toFixed(2)}`;
+    }
+    return result;
+  };
+
+  const averages = computeAverages();
+
   return (
     <View style={styles.container}>
       {/* Navigation: go to Add Menu screen */}
@@ -69,6 +88,7 @@ export default function HomeScreen() {
 
       {/* List Section: display items for the selected category */}
       <View style={styles.listSection}>
+      
         {/* Category picker for filtering the list */}
         <Picker selectedValue={category} onValueChange={setCategory} style={styles.picker}>
           <Picker.Item label="Starter" value="Starter" />
@@ -100,6 +120,21 @@ export default function HomeScreen() {
             );
           }}
         />
+        {/* Averages summary per course (moved to the bottom) */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Starters avg</Text>
+            <Text style={styles.statValue}>{averages['Starter']}</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Mains avg</Text>
+            <Text style={styles.statValue}>{averages['Main']}</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Deserts avg</Text>
+            <Text style={styles.statValue}>{averages['Desert']}</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -218,5 +253,32 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
     letterSpacing: 0.5,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  statBox: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    marginHorizontal: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  statLabel: {
+    color: '#666',
+    fontSize: 12,
+  },
+  statValue: {
+    marginTop: 6,
+    fontWeight: '700',
+    color: '#A67C52',
+    fontSize: 16,
   },
 });

@@ -110,8 +110,8 @@ export default function AddMenuScreen() {
 
 		return (
 			<View style={styles.container}>
-				{/* Navigation: back to main menu screen */}
-				<TouchableOpacity style={styles.navButton} onPress={() => router.push('/')}>
+				{/* Using native header from _layout; screen-level header removed */}
+				<TouchableOpacity style={styles.navButton} onPress={() => router.push('/') }>
 					<Text style={styles.navText}>View Menu</Text>
 				</TouchableOpacity>
 			<View style={styles.inputSection}>
